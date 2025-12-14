@@ -1,4 +1,4 @@
-# 🌊 TITAN WATCH
+# TITAN WATCH
 
 <div align="center">
 
@@ -25,7 +25,6 @@ O **Titan Watch** é um sistema completo de microserviços para simular um progr
 - **Educacional**: Demonstrar diferentes arquiteturas de software e padrões de design
 - **Experimental**: Testar e comparar diferentes tecnologias e abordagens
 - **Portfolio**: Showcases de boas práticas de desenvolvimento
-- **Divertido**: Tema interessante e envolvente para manter a motivação
 
 ### ✨ Funcionalidades Principais
 
@@ -202,7 +201,7 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 👤 Autor
 
-**Seu Nome**
+**Jonathan Vieira**
 - GitHub: [@jvieiradev](https://github.com/jvieiradev)
 
 ---
@@ -215,6 +214,6 @@ Tem alguma dúvida ou sugestão? Abra uma [issue](https://github.com/jvieiradev/
 
 <div align="center">
 
-**⚡ Defendendo o Pacífico, um microserviço de cada vez ⚡**
+**⚡ Defendendo o Mundo, um microserviço de cada vez ⚡**
 
 </div>
