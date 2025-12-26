@@ -1,0 +1,265 @@
+# ===================================================================
+# Prometheus Configuration
+# ===================================================================
+#
+# This file configures Prometheus to scrape metrics from all
+# Titan Watch microservices.
+#
+# Scrape Targets:
+# - All microservices (8001-8009)
+# - Infrastructure components
+# - Node exporters (optional)
+#
+# ===================================================================
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+  # Attach these labels to any time series or alerts
+  external_labels:
+    cluster: 'titanwatch'
+    environment: 'development'
+
+# Alertmanager configuration (optional)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - alertmanager:9093
+
+# Load alerting rules
+rule_files:
+  - '/etc/prometheus/alerts/*.yml'
+
+# Scrape configurations
+scrape_configs:
+
+  # ===================================================================
+  # PROMETHEUS SELF-MONITORING
+  # ===================================================================
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+          type: 'monitoring'
+
+  # ===================================================================
+  # MICROSERVICES
+  # ===================================================================
+
+  # Auth Service (Go + Chi)
+  - job_name: 'auth-service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['auth-service:8001']
+        labels:
+          service: 'auth'
+          language: 'go'
+          architecture: 'clean'
+
+  # Jaeger Service (Node.js + Express)
+  - job_name: 'jaeger-service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['jaeger-service:8002']
+        labels:
+          service: 'jaeger'
+          language: 'nodejs'
+          architecture: 'clean'
+
+  # Shatterdome Service (Node.js + GraphQL)
+  - job_name: 'shatterdome-service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['shatterdome-service:8003']
+        labels:
+          service: 'shatterdome'
+          language: 'nodejs'
+          architecture: 'ddd'
+          api_type: 'graphql'
+
+  # Kaiju Service (Python + FastAPI)
+  - job_name: 'kaiju-service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['kaiju-service:8004']
+        labels:
+          service: 'kaiju'
+          language: 'python'
+          architecture: 'hexagonal'
+
+  # Tracking Service - Write Side (Go + Gin)
+  - job_name: 'tracking-write-service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['tracking-service:8005']
+        labels:
+          service: 'tracking'
+          side: 'write'
+          language: 'go'
+          architecture: 'cqrs'
+
+  # Tracking Service - Read Side (Go + Gin)
+  - job_name: 'tracking-read-service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['tracking-service:8006']
+        labels:
+          service: 'tracking'
+          side: 'read'
+          language: 'go'
+          architecture: 'cqrs'
+
+  # Event Service (Java + Spring Boot)
+  - job_name: 'event-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['event-service:8007']
+        labels:
+          service: 'event'
+          language: 'java'
+          architecture: 'event-sourcing'
+
+  # Maintenance Service (Node.js + NestJS)
+  - job_name: 'maintenance-service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['maintenance-service:8008']
+        labels:
+          service: 'maintenance'
+          language: 'nodejs'
+          architecture: 'saga'
+
+  # Analytics Service (Python + Spark)
+  - job_name: 'analytics-service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['analytics-service:8009']
+        labels:
+          service: 'analytics'
+          language: 'python'
+          architecture: 'lambda'
+
+  # ===================================================================
+  # INFRASTRUCTURE
+  # ===================================================================
+
+  # PostgreSQL
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+        labels:
+          service: 'postgres'
+          type: 'database'
+
+  # MongoDB
+  - job_name: 'mongodb'
+    static_configs:
+      - targets: ['mongodb-exporter:9216']
+        labels:
+          service: 'mongodb'
+          type: 'database'
+
+  # Redis
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+        labels:
+          service: 'redis'
+          type: 'cache'
+
+  # RabbitMQ
+  - job_name: 'rabbitmq'
+    static_configs:
+      - targets: ['rabbitmq:15692']
+        labels:
+          service: 'rabbitmq'
+          type: 'message-broker'
+
+  # Kafka (JMX Exporter)
+  - job_name: 'kafka'
+    static_configs:
+      - targets: ['kafka-exporter:9308']
+        labels:
+          service: 'kafka'
+          type: 'message-broker'
+
+  # Nginx
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+        labels:
+          service: 'nginx'
+          type: 'gateway'
+
+  # ===================================================================
+  # WORKERS
+  # ===================================================================
+
+  # Notification Worker
+  - job_name: 'notification-worker'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['notification-worker:9091']
+        labels:
+          service: 'notification-worker'
+          type: 'worker'
+
+  # Maintenance Worker
+  - job_name: 'maintenance-worker'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['maintenance-worker:9092']
+        labels:
+          service: 'maintenance-worker'
+          type: 'worker'
+
+  # Report Worker
+  - job_name: 'report-worker'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['report-worker:9093']
+        labels:
+          service: 'report-worker'
+          type: 'worker'
+
+  # ===================================================================
+  # NODE EXPORTER (Optional - for system metrics)
+  # ===================================================================
+
+  # - job_name: 'node-exporter'
+  #   static_configs:
+  #     - targets: ['node-exporter:9100']
+  #       labels:
+  #         type: 'system'
+
+  # ===================================================================
+  # CADVISOR (Optional - for container metrics)
+  # ===================================================================
+
+  # - job_name: 'cadvisor'
+  #   static_configs:
+  #     - targets: ['cadvisor:8080']
+  #       labels:
+  #         type: 'container'
+
+# ===================================================================
+# REMOTE WRITE (Optional - for long-term storage)
+# ===================================================================
+
+# remote_write:
+#   - url: "https://prometheus-remote-storage.example.com/api/v1/write"
+#     basic_auth:
+#       username: admin
+#       password: password
+
+# ===================================================================
+# REMOTE READ (Optional)
+# ===================================================================
+
+# remote_read:
+#   - url: "https://prometheus-remote-storage.example.com/api/v1/read"
