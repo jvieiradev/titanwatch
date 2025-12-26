@@ -1,0 +1,69 @@
+services:
+  postgres-auth:
+    image: postgres:16-alpine
+    container_name: titanwatch-auth-db-prod
+    environment:
+      POSTGRES_USER: ${DB_USER:-titanwatch}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-titanwatch_secret}
+      POSTGRES_DB: ${DB_NAME:-auth_db}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_auth_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-titanwatch}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - titanwatch-network
+    restart: unless-stopped
+
+  redis-auth:
+    image: redis:7-alpine
+    container_name: titanwatch-auth-redis-prod
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_auth_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - titanwatch-network
+    restart: unless-stopped
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: titanwatch-auth-service-prod
+    ports:
+      - "${SERVER_PORT:-8001}:8001"
+    env_file:
+      - .env.docker
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+      redis-auth:
+        condition: service_healthy
+    networks:
+      - titanwatch-network
+    restart: unless-stopped
+    command: >
+      sh -c "
+        echo 'Running migrations...' &&
+        /app/migrate up &&
+        echo 'Starting Auth Service (Production)...' &&
+        /app/auth-service
+      "
+
+volumes:
+  postgres_auth_data:
+  redis_auth_data:
+
+networks:
+  titanwatch-network:
+    driver: bridge

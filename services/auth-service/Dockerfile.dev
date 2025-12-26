@@ -1,0 +1,16 @@
+# Development Dockerfile
+FROM golang:1.23-alpine
+
+WORKDIR /app
+
+# Install development tools
+RUN apk add --no-cache git make
+
+# Expose port
+EXPOSE 8001
+
+# Note: Source code is mounted as volume, so no COPY needed
+# Dependencies will be downloaded on first run via the command script
+
+# Default command (will be overridden by docker-compose)
+CMD ["go", "run", "cmd/api/main.go"]

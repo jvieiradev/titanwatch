@@ -1,0 +1,75 @@
+services:
+  postgres-auth:
+    image: postgres:16-alpine
+    container_name: titanwatch-auth-db
+    environment:
+      POSTGRES_USER: titanwatch
+      POSTGRES_PASSWORD: titanwatch_secret
+      POSTGRES_DB: auth_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_auth_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U titanwatch"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - titanwatch-network
+
+  redis-auth:
+    image: redis:7-alpine
+    container_name: titanwatch-auth-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_auth_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - titanwatch-network
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: titanwatch-auth-service
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./:/app
+      - go-mod-cache:/go/pkg/mod
+    env_file:
+      - .env.docker
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+      redis-auth:
+        condition: service_healthy
+    networks:
+      - titanwatch-network
+    command: >
+      sh -c "
+        echo '📦 Installing Go dependencies...' &&
+        go mod download &&
+        go mod tidy &&
+        echo '⏳ Waiting for database to be ready...' &&
+        sleep 5 &&
+        echo '🔄 Running migrations...' &&
+        go run cmd/migrate/main.go up &&
+        echo '🚀 Starting Auth Service...' &&
+        go run cmd/api/main.go
+      "
+
+volumes:
+  postgres_auth_data:
+  redis_auth_data:
+  go-mod-cache:
+
+networks:
+  titanwatch-network:
+    driver: bridge
