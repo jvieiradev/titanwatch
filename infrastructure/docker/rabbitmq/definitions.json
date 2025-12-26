@@ -1,0 +1,256 @@
+{
+  "rabbit_version": "3.12.0",
+  "rabbitmq_version": "3.12.0",
+  "product_name": "RabbitMQ",
+  "users": [
+    {
+      "name": "titanwatch",
+      "password_hash": "generated_by_docker",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "tags": "administrator"
+    }
+  ],
+  "vhosts": [
+    {
+      "name": "titanwatch"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "titanwatch",
+      "vhost": "titanwatch",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "exchanges": [
+    {
+      "name": "maintenance.direct",
+      "vhost": "titanwatch",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "maintenance.dlx",
+      "vhost": "titanwatch",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "notifications.topic",
+      "vhost": "titanwatch",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "notifications.dlx",
+      "vhost": "titanwatch",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "saga.events",
+      "vhost": "titanwatch",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    }
+  ],
+  "queues": [
+    {
+      "name": "maintenance.requests",
+      "vhost": "titanwatch",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "maintenance.dlx",
+        "x-dead-letter-routing-key": "maintenance.dead",
+        "x-message-ttl": 3600000,
+        "x-max-length": 10000
+      }
+    },
+    {
+      "name": "maintenance.approvals",
+      "vhost": "titanwatch",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "maintenance.dlx",
+        "x-dead-letter-routing-key": "maintenance.dead"
+      }
+    },
+    {
+      "name": "maintenance.executions",
+      "vhost": "titanwatch",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "maintenance.dlx",
+        "x-dead-letter-routing-key": "maintenance.dead"
+      }
+    },
+    {
+      "name": "maintenance.dead",
+      "vhost": "titanwatch",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "notifications.email",
+      "vhost": "titanwatch",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "notifications.dlx",
+        "x-dead-letter-routing-key": "notifications.dead",
+        "x-message-ttl": 1800000
+      }
+    },
+    {
+      "name": "notifications.sms",
+      "vhost": "titanwatch",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "notifications.dlx",
+        "x-dead-letter-routing-key": "notifications.dead",
+        "x-message-ttl": 1800000
+      }
+    },
+    {
+      "name": "notifications.push",
+      "vhost": "titanwatch",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "notifications.dlx",
+        "x-dead-letter-routing-key": "notifications.dead",
+        "x-message-ttl": 1800000
+      }
+    },
+    {
+      "name": "notifications.dead",
+      "vhost": "titanwatch",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "saga.compensation",
+      "vhost": "titanwatch",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    {
+      "source": "maintenance.direct",
+      "vhost": "titanwatch",
+      "destination": "maintenance.requests",
+      "destination_type": "queue",
+      "routing_key": "maintenance.request",
+      "arguments": {}
+    },
+    {
+      "source": "maintenance.direct",
+      "vhost": "titanwatch",
+      "destination": "maintenance.approvals",
+      "destination_type": "queue",
+      "routing_key": "maintenance.approval",
+      "arguments": {}
+    },
+    {
+      "source": "maintenance.direct",
+      "vhost": "titanwatch",
+      "destination": "maintenance.executions",
+      "destination_type": "queue",
+      "routing_key": "maintenance.execution",
+      "arguments": {}
+    },
+    {
+      "source": "maintenance.dlx",
+      "vhost": "titanwatch",
+      "destination": "maintenance.dead",
+      "destination_type": "queue",
+      "routing_key": "maintenance.dead",
+      "arguments": {}
+    },
+    {
+      "source": "notifications.topic",
+      "vhost": "titanwatch",
+      "destination": "notifications.email",
+      "destination_type": "queue",
+      "routing_key": "notification.email.#",
+      "arguments": {}
+    },
+    {
+      "source": "notifications.topic",
+      "vhost": "titanwatch",
+      "destination": "notifications.sms",
+      "destination_type": "queue",
+      "routing_key": "notification.sms.#",
+      "arguments": {}
+    },
+    {
+      "source": "notifications.topic",
+      "vhost": "titanwatch",
+      "destination": "notifications.push",
+      "destination_type": "queue",
+      "routing_key": "notification.push.#",
+      "arguments": {}
+    },
+    {
+      "source": "notifications.dlx",
+      "vhost": "titanwatch",
+      "destination": "notifications.dead",
+      "destination_type": "queue",
+      "routing_key": "notifications.dead",
+      "arguments": {}
+    },
+    {
+      "source": "saga.events",
+      "vhost": "titanwatch",
+      "destination": "saga.compensation",
+      "destination_type": "queue",
+      "routing_key": "saga.compensate.#",
+      "arguments": {}
+    }
+  ],
+  "parameters": [],
+  "global_parameters": [
+    {
+      "name": "cluster_name",
+      "value": "titanwatch-cluster"
+    }
+  ],
+  "policies": [
+    {
+      "vhost": "titanwatch",
+      "name": "ha-all",
+      "pattern": ".*",
+      "apply-to": "all",
+      "definition": {
+        "ha-mode": "all",
+        "ha-sync-mode": "automatic"
+      },
+      "priority": 0
+    }
+  ]
+}
