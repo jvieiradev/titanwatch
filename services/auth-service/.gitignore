@@ -1,0 +1,48 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+
+# Test binary
+*.test
+
+# Output
+*.out
+
+# Go workspace file
+go.work
+go.sum
+
+# Environment variables
+.env
+.env.local
+
+# Keep .env.docker (for Docker development)
+!.env.docker
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+*.cover
+coverage.txt
+coverage.html
+
+# Temporary files
+tmp/
+temp/
+
+# Air (hot-reload)
+build-errors.log
