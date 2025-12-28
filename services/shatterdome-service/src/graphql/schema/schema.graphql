@@ -1,0 +1,59 @@
+type Shatterdome {
+  id: ID!
+  name: String!
+  location: Location!
+  capacity: CapacityInfo!
+  status: ShatterdomeStatus!
+  allocatedJaegers: [String!]!
+  establishedDate: String!
+  canAllocateJaeger: Boolean!
+}
+
+type Location {
+  city: String!
+  country: String!
+  coordinates: Coordinates!
+}
+
+type Coordinates {
+  latitude: Float!
+  longitude: Float!
+}
+
+type CapacityInfo {
+  total: Int!
+  current: Int!
+  available: Int!
+}
+
+enum ShatterdomeStatus {
+  ACTIVE
+  UNDER_CONSTRUCTION
+  DAMAGED
+  DECOMMISSIONED
+}
+
+input CreateShatterdomeInput {
+  name: String!
+  city: String!
+  country: String!
+  latitude: Float!
+  longitude: Float!
+  totalCapacity: Int!
+}
+
+input AllocateJaegerInput {
+  shatterdomeId: ID!
+  jaegerId: ID!
+}
+
+type Query {
+  shatterdome(id: ID!): Shatterdome
+  shatterdomes(status: ShatterdomeStatus, city: String, hasCapacity: Boolean): [Shatterdome!]!
+}
+
+type Mutation {
+  createShatterdome(input: CreateShatterdomeInput!): Shatterdome!
+  allocateJaeger(input: AllocateJaegerInput!): Shatterdome!
+  deallocateJaeger(input: AllocateJaegerInput!): Shatterdome!
+}
