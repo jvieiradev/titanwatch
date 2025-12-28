@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+  shatterdome-service:
+    build: .
+    container_name: titanwatch-shatterdome-service
+    ports:
+      - "8003:8003"
+    environment:
+      - NODE_ENV=development
+      - PORT=8003
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=shatterdome_db
+      - DB_USER=titanwatch
+      - DB_PASSWORD=titanwatch_secret
+      - DB_SYNC=true
+      - GRAPHQL_PLAYGROUND=true
+    depends_on:
+      - postgres-shatterdome
+    networks:
+      - titanwatch-network
+    volumes:
+      - ./src:/app/src
+    command: npm run dev
+
+  postgres-shatterdome:
+    image: postgres:16-alpine
+    container_name: titanwatch-shatterdome-db
+    environment:
+      POSTGRES_DB: shatterdome_db
+      POSTGRES_USER: titanwatch
+      POSTGRES_PASSWORD: titanwatch_secret
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-shatterdome-data:/var/lib/postgresql/data
+    networks:
+      - titanwatch-network
+
+networks:
+  titanwatch-network:
+    external: true
+
+volumes:
+  postgres-shatterdome-data:
